@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.bunubbv.gatekeeper.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArrowPickupMixin",
+    "ExpOrbPickupMixin",
+    "ItemPickupMixin",
+    "PlayerCommandMixin",
+    "PlayerEntityMixin",
+    "PlayerInteractMixin",
+    "ScreenHandlerMixin",
+    "SlotMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

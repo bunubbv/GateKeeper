@@ -1,0 +1,46 @@
+repositories {
+    mavenCentral()
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
+}
+
+def targetJavaVersion = Integer.parseInt(project.java_version)
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        def javaVer = JavaVersion.toVersion(targetJavaVersion)
+        sourceCompatibility = javaVer
+        targetCompatibility = javaVer
+        if (JavaVersion.current() < javaVer) {
+            toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+            options.release.set(targetJavaVersion)
+        }
+    }
+}
+
+tasks.register("collectJars", Copy) {
+    group = "build"
+
+    dependsOn(":fabric:remapJar", ":spigot:jar")
+    into(layout.buildDirectory.dir("libs/${project.version}"))
+
+    from(project(":fabric").tasks.named("remapShadowJar"))
+    from(project(":spigot").tasks.named("jar"))
+}
+
+tasks.register("build") {
+    group = "build"
+    dependsOn(":fabric:build", ":spigot:build")
+    finalizedBy("collectJars")
+}

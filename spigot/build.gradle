@@ -1,0 +1,34 @@
+repositories {
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+base {
+    archivesName = "${project.archives_name}-Spigot"
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
+    implementation 'net.kyori:adventure-text-minimessage:4.20.0'
+}
+
+processResources {
+    filteringCharset 'UTF-8'
+
+    inputs.properties([
+            version: project.version,
+    ])
+
+    filesMatching('plugin.yml') {
+        expand(
+                name: 'GateKeeper',
+                version: project.version,
+                api_version: "1.19",
+                main: "com.bunubbv.gatekeeper.spigot.GateKeeper",
+                author: project.author,
+                website: project.website,
+        )
+    }
+}

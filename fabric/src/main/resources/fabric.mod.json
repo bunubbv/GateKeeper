@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "gatekeeper",
+  "version": "${version}",
+  "name": "GateKeeper",
+  "description": "",
+  "authors": ["${author}"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.bunubbv.gatekeeper.fabric.GateKeeper"
+    ]
+  },
+  "mixins": [
+    "gatekeeper.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

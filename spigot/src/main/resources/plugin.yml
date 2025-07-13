@@ -1,0 +1,16 @@
+name: ${name}
+version: ${version}
+api-version: ${api_version}
+main: ${main}
+author: ${author}
+website: ${website}
+commands:
+  gk:
+    usage: /gk <bypass|reload|revoke>
+permissions:
+  gatekeeper.bypass:
+    default: op
+  gatekeeper.reload:
+    default: op
+  gatekeeper.revoke:
+    default: op

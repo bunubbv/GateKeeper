@@ -1,0 +1,36 @@
+package com.bunubbv.gatekeeper.fabric.mixin;
+
+import net.minecraft.network.packet.c2s.play.ChatCommandSignedC2SPacket;
+import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.bunubbv.gatekeeper.fabric.GateKeeperState.isVerifiedPlayer;
+
+@Mixin(ServerPlayNetworkHandler.class)
+public class PlayerCommandMixin {
+
+    @Inject(method = "onCommandExecution", at = @At("HEAD"), cancellable = true)
+    private void preventUnSignedCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
+        ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
+        ServerPlayerEntity player = handler.player;
+
+        if (!isVerifiedPlayer(player)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "onChatCommandSigned", at = @At("HEAD"), cancellable = true)
+    private void preventSignedCommand(ChatCommandSignedC2SPacket packet, CallbackInfo ci) {
+        ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
+        ServerPlayerEntity player = handler.player;
+
+        if (!isVerifiedPlayer(player)) {
+            ci.cancel();
+        }
+    }
+}

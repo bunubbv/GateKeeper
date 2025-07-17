@@ -1,5 +1,6 @@
 package com.bunubbv.gatekeeper.fabric.mixin;
 
+import com.bunubbv.gatekeeper.fabric.PlayerState;
 import net.minecraft.network.packet.c2s.play.ChatCommandSignedC2SPacket;
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -9,17 +10,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.bunubbv.gatekeeper.fabric.GateKeeperState.isVerifiedPlayer;
-
 @Mixin(ServerPlayNetworkHandler.class)
-public class PlayerCommandMixin {
+public class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onCommandExecution", at = @At("HEAD"), cancellable = true)
     private void preventUnSignedCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
         ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
         ServerPlayerEntity player = handler.player;
 
-        if (!isVerifiedPlayer(player)) {
+        if (!PlayerState.check(player)) {
             ci.cancel();
         }
     }
@@ -29,7 +28,7 @@ public class PlayerCommandMixin {
         ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
         ServerPlayerEntity player = handler.player;
 
-        if (!isVerifiedPlayer(player)) {
+        if (!PlayerState.check(player)) {
             ci.cancel();
         }
     }

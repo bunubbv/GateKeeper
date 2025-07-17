@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GateKeeperConfig {
+public class ConfigManager {
 
     private static final File CONFIG_FILE = new File("config/gatekeeper.yml");
 

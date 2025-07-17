@@ -1,5 +1,6 @@
 package com.bunubbv.gatekeeper.fabric.mixin;
 
+import com.bunubbv.gatekeeper.fabric.PlayerState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
@@ -19,10 +20,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.bunubbv.gatekeeper.fabric.GateKeeperState.isVerifiedPlayer;
-
 @Mixin(ServerPlayerInteractionManager.class)
-public class PlayerInteractMixin {
+public class ServerPlayerInteractionManagerMixin {
 
     @Final
     @Shadow
@@ -30,7 +29,7 @@ public class PlayerInteractMixin {
 
     @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
     private void preventBlockInteract(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
-        if (!isVerifiedPlayer(this.player)) {
+        if (!PlayerState.check(player)) {
             int slot = player.getInventory().getSelectedSlot();
             ItemStack itemStackCount = player.getInventory().getStack(slot);
 
@@ -47,14 +46,14 @@ public class PlayerInteractMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"), cancellable = true)
     private void preventBlockBreaking(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
-        if (!isVerifiedPlayer(player)) {
+        if (!PlayerState.check(player)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "interactItem", at = @At("HEAD"), cancellable = true)
     private void preventItemInteract(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        if (!isVerifiedPlayer(player)) {
+        if (!PlayerState.check(player)) {
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

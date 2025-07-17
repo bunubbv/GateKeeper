@@ -4,12 +4,12 @@
   "package": "com.bunubbv.gatekeeper.fabric.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ArrowPickupMixin",
-    "ExpOrbPickupMixin",
-    "ItemPickupMixin",
-    "PlayerCommandMixin",
-    "PlayerEntityMixin",
-    "PlayerInteractMixin",
+    "PersistentProjectileEntityMixin",
+    "ExperienceOrbEntityMixin",
+    "ItemEntityMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "ServerPlayerEntityMixin",
+    "ServerPlayerInteractionManagerMixin",
     "ScreenHandlerMixin",
     "SlotMixin"
   ],

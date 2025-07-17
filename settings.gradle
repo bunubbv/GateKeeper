@@ -9,4 +9,4 @@ pluginManagement {
 }
 
 rootProject.name = 'GateKeeper'
-include("common", "spigot", "fabric")
+include("spigot", "fabric")

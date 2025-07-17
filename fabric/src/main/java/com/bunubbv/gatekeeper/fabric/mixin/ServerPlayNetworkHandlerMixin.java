@@ -1,8 +1,7 @@
 package com.bunubbv.gatekeeper.fabric.mixin;
 
 import com.bunubbv.gatekeeper.fabric.PlayerState;
-import net.minecraft.network.packet.c2s.play.ChatCommandSignedC2SPacket;
-import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,6 +24,26 @@ public class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onChatCommandSigned", at = @At("HEAD"), cancellable = true)
     private void preventSignedCommand(ChatCommandSignedC2SPacket packet, CallbackInfo ci) {
+        ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
+        ServerPlayerEntity player = handler.player;
+
+        if (!PlayerState.check(player)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "onPlayerAction", at = @At("HEAD"), cancellable = true)
+    private void preventUnSignedAction(PlayerActionC2SPacket packet, CallbackInfo ci) {
+        ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
+        ServerPlayerEntity player = handler.player;
+
+        if (!PlayerState.check(player)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "onPlayerInteractEntity", at = @At("HEAD"), cancellable = true)
+    private void preventInteractEntity(PlayerInteractEntityC2SPacket packet, CallbackInfo ci) {
         ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler)(Object)this;
         ServerPlayerEntity player = handler.player;
 

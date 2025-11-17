@@ -69,6 +69,6 @@ public class PlayerState extends PersistentState {
     }
 
     public static boolean check(PlayerEntity player) {
-        return get(player.getServer()).check(player.getUuid());
+        return get(player.getEntityWorld().getServer()).check(player.getUuid());
     }
 }

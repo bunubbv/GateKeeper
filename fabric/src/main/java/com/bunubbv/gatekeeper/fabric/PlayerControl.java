@@ -53,7 +53,7 @@ public class PlayerControl {
             if (player != null && !entry.getValue().isAtLocation(player)) {
                 PlayerLockPosition pos = entry.getValue();
                 player.teleport(
-                        player.getWorld(),
+                        player.getEntityWorld(),
                         pos.x, pos.y, pos.z,
                         Set.of(), pos.yaw, pos.pitch,
                         true

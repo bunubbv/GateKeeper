@@ -22,7 +22,7 @@ public class CommandManager {
                         .then(net.minecraft.server.command.CommandManager.argument("player", StringArgumentType.word())
                                 .suggests((context, builder) -> {
                                     context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player ->
-                                            builder.suggest(player.getGameProfile().getName())
+                                            builder.suggest(player.getGameProfile().name())
                                     );
                                     return builder.buildFuture();
                                 })
@@ -64,56 +64,6 @@ public class CommandManager {
                                     Text.literal("Config reloaded successfully!").formatted(Formatting.GREEN), false);
                             return 1;
                         }))
-
-                .then(net.minecraft.server.command.CommandManager.literal("revoke")
-                        .then(net.minecraft.server.command.CommandManager.argument("player", StringArgumentType.word())
-                                .suggests((context, builder) -> {
-                                    var server = context.getSource().getServer();
-                                    var state = PlayerState.get(server);
-
-                                    for (UUID uuid : state.verifiedPlayers) {
-                                        Objects.requireNonNull(server.getUserCache()).getByUuid(uuid).ifPresent(profile ->
-                                                builder.suggest(profile.getName())
-                                        );
-                                    }
-
-                                    return builder.buildFuture();
-                                })
-                                .executes(context -> {
-                                    String targetName = StringArgumentType.getString(context, "player");
-                                    MinecraftServer server = context.getSource().getServer();
-
-                                    GameProfile profile = server.getUserCache().findByName(targetName).orElse(null);
-                                    if (profile == null) {
-                                        context.getSource().sendError(Text.literal("Player " + targetName + " not found or has never joined."));
-                                        return 0;
-                                    }
-
-                                    UUID uuid = profile.getId();
-                                    PlayerState state = PlayerState.get(server);
-
-                                    if (!state.check(uuid)) {
-                                        context.getSource().sendError(Text.literal("Player " + targetName + " is not verified."));
-                                        return 0;
-                                    }
-
-                                    state.remove(uuid);
-                                    context.getSource().sendFeedback(
-                                            () -> Text.literal("Player " + targetName + " is no longer verified.").formatted(Formatting.YELLOW), false
-                                    );
-
-                                    ServerPlayerEntity target = server.getPlayerManager().getPlayer(uuid);
-                                    if (target != null) {
-                                        freeze(target);
-                                        target.sendMessage(Text.literal(ConfigManager.welcomeMessage).formatted(Formatting.YELLOW), false);
-                                        target.sendMessage(Text.literal(ConfigManager.question).formatted(Formatting.AQUA), false);
-                                        scheduleKick(target);
-                                    }
-
-                                    return 1;
-                                })
-                        )
-                )
         );
     }
 }

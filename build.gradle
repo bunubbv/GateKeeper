@@ -32,15 +32,17 @@ subprojects {
 tasks.register("collectJars", Copy) {
     group = "build"
 
-    dependsOn(":fabric:remapJar", ":spigot:jar")
+//    dependsOn(":fabric:remapJar", ":spigot:jar")
+    dependsOn(":spigot:jar")
     into(layout.buildDirectory.dir("libs/${project.version}"))
 
-    from(project(":fabric").tasks.named("remapShadowJar"))
+//    from(project(":fabric").tasks.named("remapShadowJar"))
     from(project(":spigot").tasks.named("jar"))
 }
 
 tasks.register("build") {
     group = "build"
-    dependsOn(":fabric:build", ":spigot:build")
+//    dependsOn(":fabric:build", ":spigot:build")
+    dependsOn(":spigot:build")
     finalizedBy("collectJars")
 }

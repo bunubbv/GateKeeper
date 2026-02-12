@@ -10,7 +10,7 @@ base {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+    compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
     implementation 'net.kyori:adventure-text-minimessage:4.20.0'
 }
 
@@ -25,7 +25,7 @@ processResources {
         expand(
                 name: 'GateKeeper',
                 version: project.version,
-                api_version: "1.21",
+                api_version: "1.19",
                 main: "com.bunubbv.gatekeeper.spigot.GateKeeper",
                 author: project.author,
                 website: project.website,

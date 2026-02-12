@@ -43,7 +43,7 @@ public class ServerPlayerEntityMixin {
     private void preventSleep(BlockPos pos, CallbackInfoReturnable<Either<PlayerEntity.SleepFailureReason, Unit>> cir) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
         if (!PlayerState.check(player)) {
-            cir.setReturnValue(Either.left(PlayerEntity.SleepFailureReason.OTHER_PROBLEM));
+            cir.setReturnValue(Either.left(PlayerEntity.SleepFailureReason.OTHER));
         }
     }
 
@@ -111,7 +111,7 @@ public class ServerPlayerEntityMixin {
     }
 
     @Inject(method = "dropSelectedItem", at = @At("HEAD"), cancellable = true)
-    private void preventItemDrop(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
+    private void preventItemDrop(boolean entireStack, CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
 
         if (!PlayerState.check(player)) {
@@ -126,7 +126,7 @@ public class ServerPlayerEntityMixin {
                             stack
                     )));
 
-            cir.setReturnValue(false);
+            ci.cancel();
         }
     }
 

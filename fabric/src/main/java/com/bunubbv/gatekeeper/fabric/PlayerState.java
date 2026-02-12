@@ -38,8 +38,8 @@ public class PlayerState extends PersistentState {
 
         TYPE = new PersistentStateType<>(
                 "gatekeeper",
-                ctx -> new PlayerState(),
-                ctx -> CODEC,
+                PlayerState::new,
+                CODEC,
                 DataFixTypes.LEVEL
         );
     }

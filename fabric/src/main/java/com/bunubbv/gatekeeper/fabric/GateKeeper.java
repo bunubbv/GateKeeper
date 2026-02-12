@@ -1,7 +1,6 @@
 package com.bunubbv.gatekeeper.fabric;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,11 +22,6 @@ public class GateKeeper implements ModInitializer {
             serverInstance = server;
             ConfigManager.load();
         });
-
-        EventHandlers.register();
-        CommandRegistrationCallback.EVENT.register(
-                (dispatcher, registryAccess, environment) -> CommandManager.register(dispatcher)
-        );
     }
 
     public static class PlayerLockPosition {

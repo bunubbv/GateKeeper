@@ -1,12 +1,1 @@
-pluginManagement {
-    repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        gradlePluginPortal()
-    }
-}
-
-rootProject.name = 'GateKeeper'
-include("spigot", "fabric")
+rootProject.name = 'PassiveWhitelist'

@@ -1,7 +1,0 @@
-answer: "16"
-question: "Evaluate the definite integral of 4 with respect to x, from 0 to 4."
-welcomeMessage: "Welcome! Please answer the following question to join the server:"
-correctMessage: "Correct! You're now verified and ready to play."
-incorrectMessage: "Incorrect answer. Please try again."
-kickMessage: "You didn't answer in time. Please try again later."
-kickDelay: 3

@@ -5,12 +5,12 @@ main: ${main}
 author: ${author}
 website: ${website}
 commands:
-  gk:
-    usage: /gk <bypass|reload|revoke>
+  psw:
+    usage: /psw <bypass|reload|revoke>
 permissions:
-  gatekeeper.bypass:
+  psw.bypass:
     default: op
-  gatekeeper.reload:
+  psw.reload:
     default: op
-  gatekeeper.revoke:
+  psw.revoke:
     default: op

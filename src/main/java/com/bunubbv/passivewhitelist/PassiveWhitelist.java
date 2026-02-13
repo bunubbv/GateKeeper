@@ -1,4 +1,4 @@
-package com.bunubbv.gatekeeper.spigot;
+package com.bunubbv.passivewhitelist;
 
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -40,7 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public final class GateKeeper extends JavaPlugin implements Listener, TabExecutor {
+public final class PassiveWhitelist extends JavaPlugin implements Listener, TabExecutor {
 
     private String answer;
     private String question;
@@ -64,8 +64,8 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
         loadConfigValues();
         loadAuthenticatedPlayers();
         Bukkit.getPluginManager().registerEvents(this, this);
-        Objects.requireNonNull(getCommand("gk")).setExecutor(this);
-        Objects.requireNonNull(getCommand("gk")).setTabCompleter(this);
+        Objects.requireNonNull(getCommand("psw")).setExecutor(this);
+        Objects.requireNonNull(getCommand("psw")).setTabCompleter(this);
     }
 
     @Override
@@ -166,9 +166,9 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
 
     private @NotNull BukkitRunnable showPlayerQuestion(Player player) {
         player.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
-                .serialize(mm.deserialize("<yellow>" + welcomeMessage + "</yellow>")));
+                .serialize(mm.deserialize(welcomeMessage)));
         player.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
-                .serialize(mm.deserialize("<aqua>" + question + "</aqua>")));
+                .serialize(mm.deserialize(question)));
 
         return new BukkitRunnable() {
             @Override
@@ -176,7 +176,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                 if (player.isOnline() && !authenticatedPlayers.contains(player.getUniqueId())) {
                     player.kickPlayer(
                             net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
-                                    .serialize(mm.deserialize("<red>" + kickMessage + "</red>"))
+                                    .serialize(mm.deserialize(kickMessage))
                     );
                 }
             }
@@ -203,7 +203,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
 
                 player.sendMessage(
                         net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
-                                MiniMessage.miniMessage().deserialize("<green>" + correctMessage + "</green>")
+                                MiniMessage.miniMessage().deserialize(correctMessage)
                         )
                 );
             });
@@ -211,7 +211,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
             Bukkit.getScheduler().runTask(this, () ->
                     player.sendMessage(
                             net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
-                                    MiniMessage.miniMessage().deserialize("<red>" + incorrectMessage + "</red>")
+                                    MiniMessage.miniMessage().deserialize(incorrectMessage)
                             )
                     )
             );
@@ -363,10 +363,10 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
             @NotNull String label,
             String @NotNull [] args) {
 
-        if (command.getName().equalsIgnoreCase("gk")) {
+        if (command.getName().equalsIgnoreCase("psw")) {
 
             if (args.length == 0) {
-                sender.sendMessage("/gk <bypass|reload|revoke>");
+                sender.sendMessage("/psw <bypass|reload|revoke>");
                 return true;
             }
 
@@ -378,7 +378,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
 
                 switch (subcommand) {
                     case "revoke":
-                        if (!sender.hasPermission("gatekeeper.revoke")) {
+                        if (!sender.hasPermission("psw.revoke")) {
                             sender.sendMessage(
                                     net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
                                         mm.deserialize("<red>You don't have permission to use this command.</red>")
@@ -423,7 +423,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                         return true;
 
                     case "bypass":
-                        if (!sender.hasPermission("gatekeeper.bypass")) {
+                        if (!sender.hasPermission("psw.bypass")) {
                             sender.sendMessage(
                                     net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
                                             mm.deserialize("<red>You don't have permission to use this command.</red>")
@@ -462,7 +462,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
             }
 
             if (subcommand.equals("reload")) {
-                if (!sender.hasPermission("gatekeeper.reload")) {
+                if (!sender.hasPermission("psw.reload")) {
 
                     sender.sendMessage(
                             net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
@@ -482,7 +482,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                 return true;
             }
 
-            sender.sendMessage("/gk <bypass|reload|revoke>");
+            sender.sendMessage("/psw <bypass|reload|revoke>");
             return true;
         }
 
@@ -495,22 +495,22 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
             Command command, @NotNull String alias,
             String @NotNull [] args) {
 
-        if (command.getName().equalsIgnoreCase("gk")) {
+        if (command.getName().equalsIgnoreCase("psw")) {
             List<String> suggestions = new ArrayList<>();
 
             if (args.length == 1) {
-                if ("bypass".startsWith(args[0].toLowerCase()) && sender.hasPermission("gatekeeper.bypass")) {
+                if ("bypass".startsWith(args[0].toLowerCase()) && sender.hasPermission("psw.bypass")) {
                     suggestions.add("bypass");
                 }
-                if ("reload".startsWith(args[0].toLowerCase()) && sender.hasPermission("gatekeeper.reload")) {
+                if ("reload".startsWith(args[0].toLowerCase()) && sender.hasPermission("psw.reload")) {
                     suggestions.add("reload");
                 }
-                if ("revoke".startsWith(args[0].toLowerCase()) && sender.hasPermission("gatekeeper.revoke")) {
+                if ("revoke".startsWith(args[0].toLowerCase()) && sender.hasPermission("psw.revoke")) {
                     suggestions.add("revoke");
                 }
             } else if (args.length == 2) {
-                if (args[0].equalsIgnoreCase("bypass") && sender.hasPermission("gatekeeper.bypass")
-                        || args[0].equalsIgnoreCase("revoke") && sender.hasPermission("gatekeeper.revoke")) {
+                if (args[0].equalsIgnoreCase("bypass") && sender.hasPermission("psw.bypass")
+                        || args[0].equalsIgnoreCase("revoke") && sender.hasPermission("psw.revoke")) {
 
                     for (UUID uuid : authenticatedPlayers) {
                         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);

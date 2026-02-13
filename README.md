@@ -1,4 +1,4 @@
-**GateKeeper** is a lightweight plugin made for semi-private Minecraft servers, like those run by schools or small friend groups, where you want to keep access limited to people you trust. Instead of using the traditional whitelist system, new players have to answer a security question the first time they join. If they get it right, they’re permanently verified and can play freely on the server. You can customize the question, the answer, all messages, and the time limit.
+**GateKeeper** is a lightweight plugin made for semi-private Minecraft servers, like those run by schools or small friend groups, where you want to keep access limited to people you trust. Instead of using the traditional whitelist system, new players have to answer a security question the first time they join. If they get it right, they’re permanently verified and can play on the server. You can customize the question, the answer and the time limit.
 
 ## Configuration
 * The plugin creates a config file at plugins/GateKeeper/config.yml.

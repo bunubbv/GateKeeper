@@ -26,5 +26,5 @@ kickDelay: 3 # minute(s)
 
 ## Commands
 * /gk reload
-* /gk revoke <username>
-* /gk bypass <username>
+* /gk revoke \<username>
+* /gk bypass \<username>

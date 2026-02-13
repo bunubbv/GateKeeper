@@ -1,8 +1,7 @@
 package com.bunubbv.gatekeeper.spigot;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
@@ -166,21 +165,26 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
     }
 
     private @NotNull BukkitRunnable showPlayerQuestion(Player player) {
-        player.sendMessage(mm.deserialize("<yellow>" + welcomeMessage + "</yellow>"));
-        player.sendMessage(mm.deserialize("<aqua>" + question + "</aqua>"));
+        player.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
+                .serialize(mm.deserialize("<yellow>" + welcomeMessage + "</yellow>")));
+        player.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
+                .serialize(mm.deserialize("<aqua>" + question + "</aqua>")));
 
         return new BukkitRunnable() {
             @Override
             public void run() {
                 if (player.isOnline() && !authenticatedPlayers.contains(player.getUniqueId())) {
-                    player.kick(mm.deserialize("<red>" + kickMessage + "</red>"));
+                    player.kickPlayer(
+                            net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
+                                    .serialize(mm.deserialize("<red>" + kickMessage + "</red>"))
+                    );
                 }
             }
         };
     }
 
     @EventHandler
-    public void onPlayerChat(AsyncChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
         if (authenticatedPlayers.contains(player.getUniqueId())) {
@@ -188,7 +192,7 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
         }
 
         event.setCancelled(true);
-        String message = PlainTextComponentSerializer.plainText().serialize(event.message());
+        String message = event.getMessage();
 
         if (message.equalsIgnoreCase(answer)) {
             Bukkit.getScheduler().runTask(this, () -> {
@@ -197,10 +201,20 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                 saveAuthenticatedPlayers();
                 unfreezePlayer(player);
 
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>" + correctMessage + "</green>"));
+                player.sendMessage(
+                        net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                MiniMessage.miniMessage().deserialize("<green>" + correctMessage + "</green>")
+                        )
+                );
             });
         } else {
-            Bukkit.getScheduler().runTask(this, () -> player.sendMessage(MiniMessage.miniMessage().deserialize("<red>" + incorrectMessage + "</red>")));
+            Bukkit.getScheduler().runTask(this, () ->
+                    player.sendMessage(
+                            net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                    MiniMessage.miniMessage().deserialize("<red>" + incorrectMessage + "</red>")
+                            )
+                    )
+            );
         }
     }
 
@@ -365,18 +379,30 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                 switch (subcommand) {
                     case "revoke":
                         if (!sender.hasPermission("gatekeeper.revoke")) {
-                            sender.sendMessage(mm.deserialize("<red>You don't have permission to use this command.</red>"));
+                            sender.sendMessage(
+                                    net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                        mm.deserialize("<red>You don't have permission to use this command.</red>")
+                                    )
+                            );
                             return true;
                         }
 
                         if (!authenticatedPlayers.contains(target.getUniqueId())) {
-                            sender.sendMessage(mm.deserialize("<red>Player " + targetName + " is not verified.</red>"));
+                            sender.sendMessage(
+                                    net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                            mm.deserialize("<red>Player " + targetName + " is not verified.</red>")
+                                    )
+                            );
                             return true;
                         }
 
                         authenticatedPlayers.remove(target.getUniqueId());
                         saveAuthenticatedPlayers();
-                        sender.sendMessage(mm.deserialize("<yellow>Player " + targetName + " is no longer verified.</yellow>"));
+                        sender.sendMessage(
+                                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                        mm.deserialize("<yellow>Player " + targetName + " is no longer verified.</yellow>")
+                                )
+                        );
 
                         if (target.isOnline()) {
                             Player onlinePlayer = target.getPlayer();
@@ -398,12 +424,20 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
 
                     case "bypass":
                         if (!sender.hasPermission("gatekeeper.bypass")) {
-                            sender.sendMessage(mm.deserialize("<red>You don't have permission to use this command.</red>"));
+                            sender.sendMessage(
+                                    net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                            mm.deserialize("<red>You don't have permission to use this command.</red>")
+                                    )
+                            );
                             return true;
                         }
 
                         if (authenticatedPlayers.contains(target.getUniqueId())) {
-                            sender.sendMessage(mm.deserialize("<red>Player " + targetName + " is already verified.</red>"));
+                            sender.sendMessage(
+                                    net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                            mm.deserialize("<red>Player " + targetName + " is already verified.</red>")
+                                    )
+                            );
                             return true;
                         }
 
@@ -418,20 +452,33 @@ public final class GateKeeper extends JavaPlugin implements Listener, TabExecuto
                             }
                         }
 
-                        sender.sendMessage(mm.deserialize("<green>Player " + targetName + " is now verified.</green>"));
+                        sender.sendMessage(
+                                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                        mm.deserialize("<green>Player " + targetName + " is now verified.</green>")
+                                )
+                        );
                         return true;
                 }
             }
 
             if (subcommand.equals("reload")) {
                 if (!sender.hasPermission("gatekeeper.reload")) {
-                    sender.sendMessage(mm.deserialize("<red>You don't have permission to use this command.</red>"));
+
+                    sender.sendMessage(
+                            net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                    mm.deserialize("<red>You don't have permission to use this command.</red>")
+                            )
+                    );
                     return true;
                 }
 
                 reloadConfig();
                 loadConfigValues();
-                sender.sendMessage(mm.deserialize("<green>Config reloaded successfully!</green>"));
+                sender.sendMessage(
+                        net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(
+                                mm.deserialize("<green>Config reloaded successfully!</green>")
+                        )
+                );
                 return true;
             }
 

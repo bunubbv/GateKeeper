@@ -1,7 +1,12 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
 repositories {
+    mavenCentral()
     maven {
-        name = "papermc-repo"
-        url = "https://repo.papermc.io/repository/maven-public/"
+        name = "spigotmc-repo"
+        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
     }
 }
 
@@ -10,8 +15,17 @@ base {
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
-    implementation 'net.kyori:adventure-text-minimessage:4.20.0'
+    compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
+    implementation "net.kyori:adventure-text-minimessage:4.20.0"
+    implementation "net.kyori:adventure-text-serializer-legacy:4.17.0"
+}
+
+tasks.build {
+    dependsOn tasks.shadowJar
+}
+
+tasks.shadowJar {
+    archiveClassifier.set('')
 }
 
 processResources {

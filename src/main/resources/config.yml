@@ -4,4 +4,4 @@ welcomeMessage: "<yellow>Welcome! Please answer the following question to play t
 correctMessage: "<green>Correct! You're now verified and ready to play.</green>"
 incorrectMessage: "<red>Incorrect answer. Please try again.</red>"
 kickMessage: "<red>You didn't answer in time. Please try again later.</red>"
-kickDelay: 3
+kickDelay: 3 # minute(s)

@@ -1,5 +1,9 @@
 package com.bunubbv.passivewhitelist;
 
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -50,7 +54,7 @@ public final class PassiveWhitelist extends JavaPlugin implements Listener, TabE
     private String kickMessage;
     private int kickDelay;
 
-    private final Set<UUID> authenticatedPlayers = new HashSet<>();
+    private final Set<UUID> authenticatedPlayers = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private final Map<UUID, Location> frozenLocations = new HashMap<>();
     private final Map<UUID, BukkitRunnable> kickTasks = new HashMap<>();
     private final MiniMessage mm = MiniMessage.miniMessage();
@@ -146,6 +150,11 @@ public final class PassiveWhitelist extends JavaPlugin implements Listener, TabE
         }
     }
 
+    private void blockIfNotVerified(Player p, Cancellable e) {
+        if (authenticatedPlayers.contains(p.getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -196,6 +205,10 @@ public final class PassiveWhitelist extends JavaPlugin implements Listener, TabE
 
         if (message.equalsIgnoreCase(answer)) {
             Bukkit.getScheduler().runTask(this, () -> {
+
+                BukkitRunnable task = kickTasks.remove(player.getUniqueId());
+                if (task != null) task.cancel();
+
                 authenticatedPlayers.add(player.getUniqueId());
                 showPlayersToVerified(player);
                 saveAuthenticatedPlayers();
@@ -224,125 +237,112 @@ public final class PassiveWhitelist extends JavaPlugin implements Listener, TabE
         if (frozenLocations.containsKey(player.getUniqueId())) {
             Location frozenLocation = frozenLocations.get(player.getUniqueId());
             if (!Objects.requireNonNull(event.getTo()).getBlock().getLocation().equals(frozenLocation.getBlock().getLocation())) {
-                player.teleport(frozenLocation);
+                event.setTo(frozenLocation);
             }
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
+        blockIfNotVerified(event.getPlayer(), event);
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+
         if (!authenticatedPlayers.contains(player.getUniqueId())) {
             event.setCancelled(true);
+
+            Bukkit.getScheduler().runTask(this, player::closeInventory);
         }
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
+        if (event.getWhoClicked() instanceof Player player) {
+            blockIfNotVerified(player, event);
         }
     }
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
+        if (event.getWhoClicked() instanceof Player player) {
+            blockIfNotVerified(player, event);
         }
     }
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
-            if (!authenticatedPlayers.contains(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
+            blockIfNotVerified(player, event);
         }
     }
 
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onEntityDamageByPlayer(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
-            if (!authenticatedPlayers.contains(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
+            blockIfNotVerified(player, event);
         }
     }
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player player) {
-            if (!authenticatedPlayers.contains(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
+            blockIfNotVerified(player, event);
+        }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetLivingEntityEvent event) {
+        if (!(event.getTarget() instanceof Player player)) return;
+
+        if (!authenticatedPlayers.contains(player.getUniqueId())) {
+            event.setCancelled(true);
+            event.setTarget(null);
         }
     }
 
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.getEntered() instanceof Player player) {
-            if (!authenticatedPlayers.contains(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
+            blockIfNotVerified(player, event);
         }
     }
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        Player player = event.getPlayer();
-        if (!authenticatedPlayers.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-        }
+        blockIfNotVerified(event.getPlayer(), event);
     }
 
     @EventHandler
@@ -353,6 +353,13 @@ public final class PassiveWhitelist extends JavaPlugin implements Listener, TabE
             if (event.getRightClicked() instanceof ArmorStand) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void preventEntityBreaking(HangingBreakByEntityEvent event) {
+        if (event.getRemover() instanceof Player player) {
+            blockIfNotVerified(player, event);
         }
     }
 
